@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clicking Game</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    background-color: #e0e0e0;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 10px 10px 20px #bcbcbc, 
+                -10px -10px 20px #ffffff;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .container:hover {
+    transform: translateY(-10px);
+  }
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  #score {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #333333;
+    transition: transform 0.2s ease;
+  }
+
+  #score:hover {
+    transform: scale(1.1);
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .button {
+    position: relative;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #c0c0c0;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #b0b0b0, 
+                -5px -5px 10px #ffffff;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .button:hover {
+    background-color: #d0d0d0;
+    transform: scale(1.05);
+  }
+
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .cooldown {
+    position: absolute;
+    bottom: -30px;
+    width: 100%;
+    font-size: 14px;
+    color: #666666;
+  }
+
+  @keyframes scaleEffect {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .effect {
+    animation: scaleEffect 0.5s ease;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Clicking Game</h1>
+    <p>Click the buttons strategically to earn points!</p>
+    <p>Points: <span id="score">0</span></p>
+    <div class="button-container">
+      <button class="button" onclick="incrementScore(1)" onmouseover="hoverEffect(this)">+1 Point</button>
+      <button class="button" id="btn5" onclick="incrementScore(5)" onmouseover="hoverEffect(this)">+5 Points</button>
+      <div id="cooldown5" class="cooldown" style="display: none;"></div>
+      <button class="button" id="btn10" onclick="incrementScore(10)" onmouseover="hoverEffect(this)">+10 Points</button>
+      <div id="cooldown10" class="cooldown" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Load saved score from localStorage on page load
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    document.getElementById('score').innerText = score;
+
+    let canClick5 = true;
+    let canClick10 = true;
+
+    function incrementScore(points) {
+      if (points === 5 && !canClick5) return;
+      if (points === 10 && !canClick10) return;
+
+      score += points;
+      document.getElementById('score').innerText = score;
+
+      // Apply effect on button click
+      document.getElementById('score').classList.add('effect');
+
+      // Disable button temporarily and show cooldown text
+      if (points === 5) {
+        canClick5 = false;
+        document.getElementById('btn5').disabled = true;
+        document.getElementById('cooldown5').innerText = '3s cooldown';
+        document.getElementById('cooldown5').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('cooldown5').style.display = 'none';
+          document.getElementById('btn5').disabled = false;
+          canClick5 = true;
+        }, 3000); // 3-second cooldown
+      } else if (points === 10) {
+        canClick10 = false;
+        document.getElementById('btn10').disabled = true;
+        document.getElementById('cooldown10').innerText = '5s cooldown';
+        document.getElementById('cooldown10').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('cooldown10').style.display = 'none';
+          document.getElementById('btn10').disabled = false;
+          canClick10 = true;
+        }, 5000); // 5-second cooldown
+      }
+
+      // Save score to localStorage
+      localStorage.setItem('score', score.toString());
+    }
+
+    // Hover effect function
+    function hoverEffect(button) {
+      button.style.transform = 'scale(1.05)';
+      setTimeout(() => {
+        button.style.transform = 'scale(1)';
+      }, 200);
+    }
+
+    // Remove animation effect class after animation ends
+    document.getElementById('score').addEventListener('animationend', () => {
+      document.getElementById('score').classList.remove('effect');
+    });
+  </script>
+</body>
+</html>
